@@ -1,0 +1,113 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  /* "Meadow" theme — soft green and yellow: cream, butter, pistachio,
+     sage, moss. Token names keep the old "teal"/"mint" prefixes so every
+     component picks up the new colors without edits: "teal" = the
+     moss/sage greens, "mint" = the butter yellows. */
+  --color-brand-teal-900: #38422b; /* Moss */
+  --color-brand-teal-700: #56633b;
+  --color-brand-teal-600: #6b7a4b; /* Olive accent */
+  --color-brand-teal-500: #9aa581; /* Sage */
+  --color-brand-teal-300: #b8ce96; /* Pistachio */
+  --color-brand-teal-200: #d2e0ba;
+  --color-brand-teal-100: #e6edd3;
+  --color-brand-teal-50: #f3f6e6;
+
+  --color-brand-mint-200: #eadfaa; /* Butter */
+  --color-brand-mint-100: #f4edcb;
+
+  --color-brand-sand-50: #fdf6e6; /* Cream */
+  --color-brand-sidebar: #f3efd6;
+
+  --color-brand-ink: #38422b; /* Moss */
+  --color-brand-muted: #5b6150;
+
+  --font-serif: var(--font-young-serif), Georgia, serif;
+  --font-sans: var(--font-outfit), system-ui, sans-serif;
+  --font-hand: var(--font-caveat), cursive;
+}
+
+body {
+  background: var(--color-brand-sand-50);
+  color: var(--color-brand-ink);
+  font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-serif);
+}
+
+/* Handwritten accent (Caveat) — use sparingly, e.g. one short note. */
+.font-hand {
+  font-family: var(--font-hand);
+  color: var(--color-brand-teal-600);
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 400; /* Young Serif only ships one weight */
+}
+
+@layer components {
+  .select-input {
+    @apply rounded-lg border border-brand-teal-100 bg-brand-sand-50 px-3 py-2 text-sm text-brand-ink outline-none focus:border-brand-teal-500;
+  }
+}
+
+/* Home page destination banner (src/components/DestinationBanner.tsx) —
+   a photo strip that scrolls right to left. The track renders its photo
+   list twice back to back and animates from translateX(0) to
+   translateX(-50%); since both halves are identical, the loop point is
+   invisible and it reads as one continuous strip. */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 45s linear infinite;
+}
+
+.animate-marquee-slow {
+  animation: marquee 60s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-marquee-slow {
+    animation: none;
+  }
+}
+
+/* Loading indicator (src/components/LoadingHummingbird.tsx) — the
+   hummingbird logo sweeps left to right across a track, jumping back to
+   the start each loop rather than bouncing back and forth. */
+@keyframes loading-hummingbird {
+  0% {
+    left: 0%;
+  }
+  100% {
+    left: calc(100% - 1.5rem);
+  }
+}
+
+.animate-loading-hummingbird {
+  animation: loading-hummingbird 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-loading-hummingbird {
+    animation: none;
+    left: calc(50% - 0.75rem);
+  }
+}
