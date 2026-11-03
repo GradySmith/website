@@ -24,6 +24,12 @@
   --color-brand-ink: #38422b; /* Moss */
   --color-brand-muted: #5b6150;
 
+}
+
+/* "inline" so these resolve at the element using them — next/font defines
+   --font-young-serif etc. on <body>, not :root, so a plain @theme lookup
+   would come back empty and fall back to the browser's default font. */
+@theme inline {
   --font-serif: var(--font-young-serif), Georgia, serif;
   --font-sans: var(--font-outfit), system-ui, sans-serif;
   --font-hand: var(--font-caveat), cursive;
@@ -32,19 +38,19 @@
 body {
   background: var(--color-brand-sand-50);
   color: var(--color-brand-ink);
-  font-family: var(--font-sans);
+  font-family: var(--font-outfit), system-ui, sans-serif;
 }
 
 h1,
 h2,
 h3,
 .font-display {
-  font-family: var(--font-serif);
+  font-family: var(--font-young-serif), Georgia, serif;
 }
 
 /* Handwritten accent (Caveat) — use sparingly, e.g. one short note. */
 .font-hand {
-  font-family: var(--font-hand);
+  font-family: var(--font-caveat), cursive;
   color: var(--color-brand-teal-600);
 }
 
