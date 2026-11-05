@@ -3,6 +3,7 @@ import { Young_Serif, Outfit, Caveat } from "next/font/google";
 import { headers } from "next/headers";
 import { Sidebar } from "@/components/Sidebar";
 import { BlogHeader } from "@/components/BlogHeader";
+import { SocialLinks } from "@/components/SocialLinks";
 import { SITE } from "@/data/site";
 import { PLANNER_PATH_PREFIXES } from "@/lib/site-routes";
 import { TopBar } from "@/components/TopBar";
@@ -81,8 +82,11 @@ export default async function RootLayout({
           <div className="flex min-h-screen flex-col">
             <BlogHeader userEmail={userEmail} />
             <main className="flex-1 px-6 py-10">{children}</main>
-            <footer className="border-t border-brand-teal-100 px-6 py-6 text-center text-xs text-brand-muted">
-              © {new Date().getFullYear()} {SITE.name}
+            <footer className="flex flex-col items-center gap-4 border-t border-brand-teal-100 px-6 py-8 text-xs text-brand-muted">
+              <SocialLinks />
+              <p>
+                © {new Date().getFullYear()} {SITE.name}
+              </p>
             </footer>
           </div>
         ) : (

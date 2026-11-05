@@ -14,8 +14,8 @@ export const SITE = {
     photoUrl: "/grady.jpg",
   },
   socials: {
-    youtube: "",
-    instagram: "",
-    tiktok: "",
+    youtube: "https://www.youtube.com/@grady_travels",
+    instagram: "https://www.instagram.com/grady.travels/",
+    tiktok: "https://www.tiktok.com/@grady.travels",
   },
 } as const;

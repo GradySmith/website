@@ -1,16 +1,10 @@
 import Link from "next/link";
-import { Youtube, Instagram, Music2, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { PostCard } from "@/components/PostCard";
 import { SITE } from "@/data/site";
 import { getPosts, youtubeEmbedUrl } from "@/lib/posts";
 
 export const dynamic = "force-dynamic";
-
-const SOCIAL_LINKS = [
-  { key: "youtube", label: "YouTube", icon: Youtube, url: SITE.socials.youtube },
-  { key: "instagram", label: "Instagram", icon: Instagram, url: SITE.socials.instagram },
-  { key: "tiktok", label: "TikTok", icon: Music2, url: SITE.socials.tiktok },
-].filter((social) => Boolean(social.url));
 
 export default async function HomePage() {
   const posts = await getPosts({ limit: 12 });
@@ -25,7 +19,7 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-14">
-      <section className="grid grid-cols-1 items-center gap-8 rounded-3xl bg-gradient-to-br from-brand-teal-100 via-brand-teal-50 to-brand-mint-200 px-8 py-14 md:grid-cols-[1fr_auto]">
+      <section className="grid grid-cols-1 items-center gap-8 rounded-3xl bg-gradient-to-br from-brand-teal-100 via-brand-teal-50 to-brand-mint-200 px-8 py-14 md:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-5">
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -51,18 +45,6 @@ export default async function HomePage() {
               Read the blog
               <ArrowRight className="h-4 w-4" />
             </Link>
-            {SOCIAL_LINKS.map(({ key, label, icon: Icon, url }) => (
-              <a
-                key={key}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-brand-teal-200 bg-white px-4 py-3 text-sm font-medium text-brand-teal-700 hover:bg-brand-teal-50"
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </a>
-            ))}
           </div>
         </div>
         {SITE.about.photoUrl && (
@@ -70,7 +52,7 @@ export default async function HomePage() {
           <img
             src={SITE.about.photoUrl}
             alt="Grady at Machu Picchu"
-            className="h-80 w-64 rounded-3xl object-cover shadow-md"
+            className="w-full rounded-3xl object-cover shadow-md"
           />
         )}
       </section>
