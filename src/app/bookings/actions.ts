@@ -14,11 +14,16 @@ import {
 import { createTrip } from "@/app/trips/actions";
 import { geocodeLocation } from "@/lib/geocode";
 import { getUsdRateForCurrency } from "@/lib/exchange-rate";
+import { isBlogOwner } from "@/lib/destinations";
 import type { BookingType, ItineraryItemType } from "@/types";
 
 type ActionResult<T = undefined> =
   | ({ success: true } & (T extends undefined ? object : { data: T }))
   | { success: false; error: string };
+
+// Gmail and screenshot scanning call the Anthropic API on the owner's bill,
+// so they're owner-only for now.
+const AI_OWNER_ONLY_ERROR = "Booking scanning is currently limited to the site owner.";
 
 async function requireUserId(): Promise<string | null> {
   const supabase = await createClient();
@@ -238,6 +243,7 @@ export async function scanGmailForBookings(
   const supabase = await createClient();
   const userId = await requireUserId();
   if (!userId) return { success: false, error: "You need to be signed in." };
+  if (!(await isBlogOwner())) return { success: false, error: AI_OWNER_ONLY_ERROR };
 
   // Clamp to a sane range — Gmail's newer_than works for any window, but
   // there's no reason to let a stray input search 10 years of mail.
@@ -535,6 +541,7 @@ export async function scanBookingScreenshots(
 ): Promise<ActionResult<{ found: number }>> {
   const userId = await requireUserId();
   if (!userId) return { success: false, error: "You need to be signed in." };
+  if (!(await isBlogOwner())) return { success: false, error: AI_OWNER_ONLY_ERROR };
 
   if (images.length === 0) {
     return { success: false, error: "Add at least one screenshot first." };

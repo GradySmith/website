@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase-server";
 import { getDestinationPhotos } from "@/lib/destination-photos";
+import { isBlogOwner } from "@/lib/destinations";
 import type {
   DestinationQuery,
   DestinationSuggestion,
@@ -99,6 +100,15 @@ function buildPrompt(query: DestinationQuery) {
 }
 
 export async function POST(request: Request) {
+  // AI calls bill the owner's Anthropic account, so for now only the blog
+  // owner can use them. (A subscription for other users may come later.)
+  if (!(await isBlogOwner())) {
+    return NextResponse.json(
+      { error: "The AI trip ideas tool is currently limited to the site owner." },
+      { status: 403 }
+    );
+  }
+
   const body = (await request.json()) as Partial<DestinationQuery>;
 
   const query: DestinationQuery = {
