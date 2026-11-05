@@ -8,8 +8,8 @@ export const SITE = {
   about: {
     heading: "Hi, I'm Grady.",
     paragraphs: [
-      "I'm a traveller from Toronto sharing the places I go, what they cost, and what I'd do differently. This is where my videos, photos and tips from YouTube, Instagram and TikTok live in one place.",
-      "Browse the destinations I've covered, or use the Trip Planner to brainstorm and organise your own journey.",
+      "I'm a traveller from Canada exploring the world, and sharing what I find! This is where my videos, photos and tips from YouTube, Instagram and TikTok live in one place.",
+      "Browse the destinations I've covered, or use my travel resources and Trip Planner to brainstorm and organise your own journey.",
     ],
     photoUrl: "/grady.jpg",
   },
