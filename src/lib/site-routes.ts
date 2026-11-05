@@ -11,7 +11,14 @@ export const PLANNER_PATH_PREFIXES = [
 ];
 
 // Routes a signed-out visitor may open.
-export const PUBLIC_PATH_PREFIXES = ["/login", "/auth", "/destinations"];
+export const PUBLIC_PATH_PREFIXES = [
+  "/login",
+  "/auth",
+  "/destinations",
+  "/blog",
+  "/resources",
+  "/about",
+];
 
 export function isPublicPath(pathname: string): boolean {
   return pathname === "/" || PUBLIC_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix));

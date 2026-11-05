@@ -1,39 +1,39 @@
 import { createClient } from "@/lib/supabase-server";
 import { SITE } from "@/data/site";
-import type { BlogDestination } from "@/types";
+import type { BlogPost } from "@/types";
 
-// Read helpers for the public blog. Both swallow errors (returning empty /
+// Read helpers for the public blog. Each swallows errors (returning empty /
 // null) so a paused or unreachable database degrades to an empty-state page
 // instead of a crash.
 
-export async function getPublishedDestinations(limit?: number): Promise<BlogDestination[]> {
+export async function getPosts(
+  filter: { country?: string; category?: string; limit?: number } = {}
+): Promise<BlogPost[]> {
   try {
     const supabase = await createClient();
     let query = supabase
-      .from("blog_destinations")
+      .from("blog_posts")
       .select("*")
       .eq("published", true)
       .order("created_at", { ascending: false });
-    if (limit) query = query.limit(limit);
+    if (filter.country) query = query.contains("countries", [filter.country]);
+    if (filter.category) query = query.contains("categories", [filter.category]);
+    if (filter.limit) query = query.limit(filter.limit);
     const { data } = await query;
-    return (data as BlogDestination[]) ?? [];
+    return (data as BlogPost[]) ?? [];
   } catch (error) {
-    console.error("getPublishedDestinations failed:", error);
+    console.error("getPosts failed:", error);
     return [];
   }
 }
 
-export async function getDestinationBySlug(slug: string): Promise<BlogDestination | null> {
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   try {
     const supabase = await createClient();
-    const { data } = await supabase
-      .from("blog_destinations")
-      .select("*")
-      .eq("slug", slug)
-      .maybeSingle();
-    return (data as BlogDestination | null) ?? null;
+    const { data } = await supabase.from("blog_posts").select("*").eq("slug", slug).maybeSingle();
+    return (data as BlogPost | null) ?? null;
   } catch (error) {
-    console.error("getDestinationBySlug failed:", error);
+    console.error("getPostBySlug failed:", error);
     return null;
   }
 }
@@ -74,4 +74,8 @@ export function slugify(value: string): string {
     .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+export function formatPostDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", { dateStyle: "medium", timeZone: "UTC" });
 }

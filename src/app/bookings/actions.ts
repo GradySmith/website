@@ -14,7 +14,7 @@ import {
 import { createTrip } from "@/app/trips/actions";
 import { geocodeLocation } from "@/lib/geocode";
 import { getUsdRateForCurrency } from "@/lib/exchange-rate";
-import { isBlogOwner } from "@/lib/destinations";
+import { isBlogOwner } from "@/lib/posts";
 import type { BookingType, ItineraryItemType } from "@/types";
 
 type ActionResult<T = undefined> =

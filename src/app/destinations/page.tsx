@@ -1,46 +1,32 @@
 import Link from "next/link";
-import { Plus, MapPin } from "lucide-react";
-import { EmptyState } from "@/components/EmptyState";
-import { DestinationPostCard } from "@/components/DestinationPostCard";
-import { getPublishedDestinations, isBlogOwner } from "@/lib/destinations";
+import { CONTINENTS } from "@/data/taxonomy";
 
 export const metadata = { title: "Destinations — Grady Travels" };
-export const dynamic = "force-dynamic";
 
-export default async function DestinationsPage() {
-  const [destinations, isOwner] = await Promise.all([getPublishedDestinations(), isBlogOwner()]);
-
+export default function DestinationsPage() {
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-4xl font-semibold text-brand-teal-900">Destinations</h1>
-          <p className="mt-2 text-brand-muted">Everywhere I&apos;ve been and shared so far.</p>
-        </div>
-        {isOwner && (
-          <Link
-            href="/destinations/new"
-            className="flex items-center gap-1.5 rounded-full bg-brand-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-teal-700"
-          >
-            <Plus className="h-4 w-4" />
-            Add destination
-          </Link>
-        )}
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
+      <div>
+        <h1 className="font-display text-4xl text-brand-teal-900">Destinations</h1>
+        <p className="mt-2 text-brand-muted">Pick a country to see everything I&apos;ve written about it.</p>
       </div>
 
-      {destinations.length === 0 ? (
-        <EmptyState
-          icon={MapPin}
-          title="Destinations coming soon"
-          description="New places are on the way — check back shortly."
-        />
-      ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {destinations.map((destination) => (
-            <DestinationPostCard key={destination.id} destination={destination} />
-          ))}
-        </div>
-      )}
+      {CONTINENTS.map((continent) => (
+        <section key={continent.slug} id={continent.slug} className="flex scroll-mt-24 flex-col gap-4">
+          <h2 className="font-display text-2xl text-brand-ink">{continent.name}</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {continent.countries.map((country) => (
+              <Link
+                key={country.slug}
+                href={`/destinations/${country.slug}`}
+                className="rounded-2xl border border-brand-teal-100 bg-white px-5 py-4 font-display text-lg text-brand-teal-900 transition-shadow hover:shadow-md"
+              >
+                {country.name}
+              </Link>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

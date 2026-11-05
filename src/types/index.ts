@@ -26,17 +26,16 @@ export interface DestinationQuery {
   budget: BudgetLevel;
 }
 
-export interface BlogDestination {
+export interface BlogPost {
   id: string;
   slug: string;
-  name: string;
-  country: string | null;
+  title: string;
   summary: string | null;
   body: string | null;
-  best_time: string | null;
-  tips: string[];
   cover_image_url: string | null;
   video_url: string | null;
+  countries: string[];
+  categories: string[];
   published: boolean;
   created_at: string;
   updated_at: string;

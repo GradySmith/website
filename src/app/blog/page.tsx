@@ -1,0 +1,33 @@
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { PostGrid } from "@/components/PostGrid";
+import { getPosts, isBlogOwner } from "@/lib/posts";
+
+export const metadata = { title: "Blog — Grady Travels" };
+export const dynamic = "force-dynamic";
+
+export default async function BlogPage() {
+  const [posts, isOwner] = await Promise.all([getPosts(), isBlogOwner()]);
+
+  return (
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-4xl text-brand-teal-900">Blog</h1>
+          <p className="mt-2 text-brand-muted">My latest posts, newest first.</p>
+        </div>
+        {isOwner && (
+          <Link
+            href="/blog/new"
+            className="flex items-center gap-1.5 rounded-full bg-brand-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-teal-700"
+          >
+            <Plus className="h-4 w-4" />
+            New post
+          </Link>
+        )}
+      </div>
+
+      <PostGrid posts={posts} />
+    </div>
+  );
+}

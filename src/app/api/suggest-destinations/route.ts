@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase-server";
 import { getDestinationPhotos } from "@/lib/destination-photos";
-import { isBlogOwner } from "@/lib/destinations";
+import { isBlogOwner } from "@/lib/posts";
 import type {
   DestinationQuery,
   DestinationSuggestion,

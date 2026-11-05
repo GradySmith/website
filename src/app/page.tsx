@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Youtube, Instagram, Music2, ArrowRight } from "lucide-react";
-import { DestinationPostCard } from "@/components/DestinationPostCard";
+import { PostCard } from "@/components/PostCard";
 import { SITE } from "@/data/site";
-import { getPublishedDestinations, youtubeEmbedUrl } from "@/lib/destinations";
+import { getPosts, youtubeEmbedUrl } from "@/lib/posts";
 
 export const dynamic = "force-dynamic";
 
@@ -13,12 +13,12 @@ const SOCIAL_LINKS = [
 ].filter((social) => Boolean(social.url));
 
 export default async function HomePage() {
-  const destinations = await getPublishedDestinations(12);
-  const featured = destinations.slice(0, 3);
-  const videos = destinations
-    .map((destination) => ({
-      destination,
-      embedUrl: youtubeEmbedUrl(destination.video_url),
+  const posts = await getPosts({ limit: 12 });
+  const latest = posts.slice(0, 3);
+  const videos = posts
+    .map((post) => ({
+      post,
+      embedUrl: youtubeEmbedUrl(post.video_url),
     }))
     .filter((entry): entry is typeof entry & { embedUrl: string } => Boolean(entry.embedUrl))
     .slice(0, 3);
@@ -45,10 +45,10 @@ export default async function HomePage() {
           ))}
           <div className="flex flex-wrap items-center gap-3">
             <Link
-              href="/destinations"
+              href="/blog"
               className="inline-flex items-center gap-2 rounded-full bg-brand-teal-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-teal-700"
             >
-              Explore destinations
+              Read the blog
               <ArrowRight className="h-4 w-4" />
             </Link>
             {SOCIAL_LINKS.map(({ key, label, icon: Icon, url }) => (
@@ -69,8 +69,8 @@ export default async function HomePage() {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={SITE.about.photoUrl}
-            alt="Grady"
-            className="h-56 w-56 rounded-3xl object-cover shadow-md"
+            alt="Grady at Machu Picchu"
+            className="h-80 w-64 rounded-3xl object-cover shadow-md"
           />
         )}
       </section>
@@ -78,21 +78,21 @@ export default async function HomePage() {
       <section className="flex flex-col gap-5">
         <div className="flex items-end justify-between">
           <h2 className="font-display text-2xl font-semibold text-brand-ink">
-            Featured destinations
+            Latest posts
           </h2>
           <Link
-            href="/destinations"
+            href="/blog"
             className="text-sm font-medium text-brand-teal-700 hover:text-brand-teal-800"
           >
             See all
           </Link>
         </div>
-        {featured.length === 0 ? (
-          <p className="text-brand-muted">New destinations are coming soon.</p>
+        {latest.length === 0 ? (
+          <p className="text-brand-muted">More blog posts coming soon!</p>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-            {featured.map((destination) => (
-              <DestinationPostCard key={destination.id} destination={destination} />
+            {latest.map((post) => (
+              <PostCard key={post.id} post={post} />
             ))}
           </div>
         )}
@@ -102,22 +102,22 @@ export default async function HomePage() {
         <section className="flex flex-col gap-5">
           <h2 className="font-display text-2xl font-semibold text-brand-ink">Latest videos</h2>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-            {videos.map(({ destination, embedUrl }) => (
-              <div key={destination.id} className="flex flex-col gap-2">
+            {videos.map(({ post, embedUrl }) => (
+              <div key={post.id} className="flex flex-col gap-2">
                 <div className="aspect-video overflow-hidden rounded-2xl">
                   <iframe
                     src={embedUrl}
-                    title={`${destination.name} video`}
+                    title={`${post.title} video`}
                     loading="lazy"
                     allowFullScreen
                     className="h-full w-full"
                   />
                 </div>
                 <Link
-                  href={`/destinations/${destination.slug}`}
+                  href={`/blog/${post.slug}`}
                   className="text-sm font-medium text-brand-ink hover:text-brand-teal-700"
                 >
-                  {destination.name}
+                  {post.title}
                 </Link>
               </div>
             ))}
