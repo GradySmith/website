@@ -27,9 +27,13 @@ export default async function HomePage() {
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-14">
       <section className="grid grid-cols-1 items-center gap-8 rounded-3xl bg-gradient-to-br from-brand-teal-100 via-brand-teal-50 to-brand-mint-200 px-8 py-14 md:grid-cols-[1fr_auto]">
         <div className="flex flex-col gap-5">
-          <p className="text-sm font-semibold uppercase tracking-wide text-brand-teal-700">
-            {SITE.name}
-          </p>
+          <div className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.svg" alt="" width={56} height={56} />
+            <p className="text-sm font-semibold uppercase tracking-wide text-brand-teal-700">
+              {SITE.name}
+            </p>
+          </div>
           <h1 className="font-display text-5xl font-semibold text-brand-teal-900">
             {SITE.about.heading}
           </h1>
