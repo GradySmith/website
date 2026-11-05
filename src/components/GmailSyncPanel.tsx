@@ -94,7 +94,7 @@ export function GmailSyncPanel({
             Sync bookings from Gmail
           </h2>
           <p className="mt-1 text-sm text-brand-muted">
-            Connect Gmail and Biyahe will scan the last 90 days for flight and hotel
+            Connect Gmail and the planner will scan the last 90 days for flight and hotel
             confirmations, so you can add them to a trip in one click.
           </p>
         </div>

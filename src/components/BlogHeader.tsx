@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SITE } from "@/data/site";
+import { Logo } from "@/components/Logo";
 import { signOut } from "@/app/login/actions";
 
 const LINKS = [
@@ -17,8 +18,8 @@ export function BlogHeader({ userEmail }: { userEmail?: string }) {
   return (
     <header className="border-b border-brand-teal-100 bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
-        <Link href="/" className="font-display text-xl font-semibold text-brand-teal-900">
-          {SITE.name}
+        <Link href="/" aria-label={SITE.name}>
+          <Logo size={40} />
         </Link>
         <nav className="flex items-center gap-1">
           {LINKS.map(({ href, label }) => {

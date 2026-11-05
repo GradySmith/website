@@ -122,7 +122,7 @@ export function ScreenshotUploadPanel() {
           </h2>
           <p className="mt-1 text-sm text-brand-muted">
             No direct Hostelworld or Airbnb connection exists yet — but upload a screenshot of
-            your &quot;My Trips&quot; page and Biyahe will read the bookings off it.
+            your &quot;My Trips&quot; page and the planner will read the bookings off it.
           </p>
           {message && <p className="mt-1 text-sm text-emerald-700">{message}</p>}
           {error && <p className="mt-1 text-sm text-red-600">{error}</p>}

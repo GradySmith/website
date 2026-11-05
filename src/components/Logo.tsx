@@ -1,22 +1,14 @@
-import Image from "next/image";
+import { SITE } from "@/data/site";
 
-export function Logo({ withWordmark = true }: { withWordmark?: boolean }) {
+// Hummingbird badge + site name. The mark is /public/logo.svg (also used
+// as the browser-tab icon via src/app/icon.svg).
+export function Logo({ withWordmark = true, size = 36 }: { withWordmark?: boolean; size?: number }) {
   return (
-    <div className="flex items-center gap-2">
-      <span className="block h-9 w-9 overflow-hidden rounded-xl">
-        <Image
-          src="/logo-hummingbird.png"
-          alt="Biyahe"
-          width={72}
-          height={72}
-          className="h-full w-full object-cover"
-          priority
-        />
-      </span>
+    <div className="flex items-center gap-2.5">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo.svg" alt={SITE.name} width={size} height={size} className="flex-shrink-0" />
       {withWordmark && (
-        <span className="font-display text-xl font-semibold text-brand-teal-900">
-          Biyahe
-        </span>
+        <span className="font-display text-xl text-brand-teal-900">{SITE.name}</span>
       )}
     </div>
   );
