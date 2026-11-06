@@ -9,6 +9,7 @@ import { PLANNER_PATH_PREFIXES } from "@/lib/site-routes";
 import { TopBar } from "@/components/TopBar";
 import { PreferencesProvider } from "@/lib/preferences-context";
 import { createClient } from "@/lib/supabase-server";
+import { isBlogEditor } from "@/lib/posts";
 import { getServerPreferences, type UserPreferences } from "@/lib/preferences";
 import { getUsdToCadRate } from "@/lib/exchange-rate";
 import "./globals.css";
@@ -50,6 +51,7 @@ export default async function RootLayout({
   const isPlannerRoute = PLANNER_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
   let userEmail: string | undefined;
+  let isEditor = false;
   let preferences: UserPreferences = { locale: "en", currency: "USD" };
   let exchangeRate = 1;
 
@@ -68,6 +70,7 @@ export default async function RootLayout({
       const supabase = await createClient();
       const { data } = await supabase.auth.getClaims();
       userEmail = data?.claims?.email as string | undefined;
+      if (userEmail) isEditor = await isBlogEditor();
     } catch {
       userEmail = undefined;
     }
@@ -80,7 +83,7 @@ export default async function RootLayout({
           children
         ) : !isPlannerRoute ? (
           <div className="flex min-h-screen flex-col">
-            <BlogHeader userEmail={userEmail} />
+            <BlogHeader userEmail={userEmail} isEditor={isEditor} />
             <main className="flex-1 px-6 py-10">{children}</main>
             <footer className="flex flex-col items-center gap-4 border-t border-brand-teal-100 px-6 py-8 text-xs text-brand-muted">
               <SocialLinks />

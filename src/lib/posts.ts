@@ -7,15 +7,16 @@ import type { BlogPost } from "@/types";
 // instead of a crash.
 
 export async function getPosts(
-  filter: { country?: string; category?: string; limit?: number } = {}
+  filter: { country?: string; category?: string; limit?: number; includeDrafts?: boolean } = {}
 ): Promise<BlogPost[]> {
   try {
     const supabase = await createClient();
     let query = supabase
       .from("blog_posts")
       .select("*")
-      .eq("published", true)
       .order("created_at", { ascending: false });
+    // Drafts are only returned to editors anyway (row-level security).
+    if (!filter.includeDrafts) query = query.eq("published", true);
     if (filter.country) query = query.contains("countries", [filter.country]);
     if (filter.category) query = query.contains("categories", [filter.category]);
     if (filter.limit) query = query.limit(filter.limit);
@@ -43,6 +44,19 @@ export async function isBlogOwner(): Promise<boolean> {
     const supabase = await createClient();
     const { data } = await supabase.auth.getClaims();
     return (data?.claims?.email as string | undefined)?.toLowerCase() === SITE.ownerEmail;
+  } catch {
+    return false;
+  }
+}
+
+// Blog editors: the owner plus anyone listed in the blog_editors table.
+// Falls back to owner-only if the table hasn't been created yet.
+export async function isBlogEditor(): Promise<boolean> {
+  if (await isBlogOwner()) return true;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.rpc("is_blog_editor");
+    return data === true;
   } catch {
     return false;
   }

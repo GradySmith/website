@@ -1,20 +1,22 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Pencil, Trash2, ExternalLink } from "lucide-react";
+import { ArrowLeft, Pencil, ExternalLink } from "lucide-react";
 import { findCategory, findCountry } from "@/data/taxonomy";
-import { formatPostDate, getPostBySlug, isBlogOwner, youtubeEmbedUrl } from "@/lib/posts";
-import { deletePost } from "../actions";
+import { formatPostDate, getPostBySlug, isBlogEditor, youtubeEmbedUrl } from "@/lib/posts";
+import { bodyToHtml } from "@/lib/post-body";
+import { sanitizePostHtml } from "@/lib/sanitize-post-html";
+import { DeletePostButton } from "@/components/DeletePostButton";
 
 export const dynamic = "force-dynamic";
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [post, isOwner] = await Promise.all([getPostBySlug(slug), isBlogOwner()]);
+  const [post, isEditor] = await Promise.all([getPostBySlug(slug), isBlogEditor()]);
 
-  if (!post || (!post.published && !isOwner)) notFound();
+  if (!post || (!post.published && !isEditor)) notFound();
 
   const embedUrl = youtubeEmbedUrl(post.video_url);
-  const paragraphs = (post.body ?? "").split(/\n\s*\n/).filter(Boolean);
+  const bodyHtml = sanitizePostHtml(bodyToHtml(post.body));
   const countries = post.countries.map((s) => findCountry(s)).filter((c) => c !== undefined);
   const categories = post.categories.map((s) => findCategory(s)).filter((c) => c !== undefined);
 
@@ -40,7 +42,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       <header className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-4">
           <h1 className="font-display text-4xl text-brand-teal-900">{post.title}</h1>
-          {isOwner && (
+          {isEditor && (
             <div className="flex flex-shrink-0 items-center gap-3 pt-2">
               <Link
                 href={`/blog/${post.slug}/edit`}
@@ -49,16 +51,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               >
                 <Pencil className="h-4 w-4" />
               </Link>
-              <form action={deletePost}>
-                <input type="hidden" name="id" value={post.id} />
-                <button
-                  type="submit"
-                  aria-label="Delete post"
-                  className="text-brand-muted hover:text-red-600"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </form>
+              <DeletePostButton id={post.id} title={post.title} iconOnly />
             </div>
           )}
         </div>
@@ -84,11 +77,11 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           ))}
           {!post.published && (
             <span className="rounded-full bg-amber-100 px-3 py-0.5 text-xs font-medium text-amber-700">
-              Draft — only you can see this
+              Draft — only editors can see this
             </span>
           )}
         </div>
-        {post.summary && <p className="text-lg text-brand-ink">{post.summary}</p>}
+        {post.subtitle && <p className="text-xl text-brand-muted">{post.subtitle}</p>}
       </header>
 
       {embedUrl ? (
@@ -115,13 +108,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         )
       )}
 
-      <div className="flex flex-col gap-4 text-brand-ink">
-        {paragraphs.map((paragraph, index) => (
-          <p key={index} className="leading-relaxed">
-            {paragraph}
-          </p>
-        ))}
-      </div>
+      <div className="post-body" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
     </article>
   );
 }

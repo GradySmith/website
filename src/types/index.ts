@@ -30,6 +30,7 @@ export interface BlogPost {
   id: string;
   slug: string;
   title: string;
+  subtitle: string | null;
   summary: string | null;
   body: string | null;
   cover_image_url: string | null;

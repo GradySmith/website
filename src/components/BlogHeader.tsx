@@ -18,9 +18,14 @@ const PANEL_CLASS =
 const ITEM_CLASS =
   "flex items-center justify-between gap-6 rounded-xl px-3 py-2 text-sm text-brand-ink hover:bg-brand-teal-50 hover:text-brand-teal-700";
 
-export function BlogHeader({ userEmail }: { userEmail?: string }) {
+export function BlogHeader({ userEmail, isEditor = false }: { userEmail?: string; isEditor?: boolean }) {
   const pathname = usePathname();
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    // /blog/manage has its own "Write" tab.
+    if (href === "/blog" && pathname.startsWith("/blog/manage")) return false;
+    return pathname.startsWith(href);
+  };
   const tab = (href: string) => `${TAB_CLASS} ${isActive(href) ? ACTIVE_CLASS : IDLE_CLASS}`;
 
   return (
@@ -98,6 +103,11 @@ export function BlogHeader({ userEmail }: { userEmail?: string }) {
           <Link href="/about" className={tab("/about")}>
             About me
           </Link>
+          {isEditor && (
+            <Link href="/blog/manage" className={tab("/blog/manage")}>
+              Write
+            </Link>
+          )}
 
           {userEmail ? (
             <form action={signOut}>

@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { PostForm } from "@/components/PostForm";
-import { isBlogOwner } from "@/lib/posts";
+import { isBlogEditor } from "@/lib/posts";
 
 export default async function NewPostPage() {
-  if (!(await isBlogOwner())) notFound();
+  if (!(await isBlogEditor())) notFound();
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
