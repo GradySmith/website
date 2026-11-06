@@ -8,8 +8,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ slug:
   if (!post || !isEditor) notFound();
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-      <h1 className="font-display text-3xl text-brand-teal-900">Edit post</h1>
+    <div className="mx-auto w-full max-w-6xl">
       <PostForm post={post} />
     </div>
   );

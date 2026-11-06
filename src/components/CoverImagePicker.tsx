@@ -27,13 +27,12 @@ export function CoverImagePicker({ initialUrl }: { initialUrl: string | null }) 
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-sm text-brand-muted">Cover photo (shown at the top of the post and on cards)</span>
-      <input type="hidden" name="cover_image_url" value={url} />
+            <input type="hidden" name="cover_image_url" value={url} />
 
       {url ? (
-        <div className="relative overflow-hidden rounded-2xl border border-brand-teal-100">
+        <div className="relative overflow-hidden rounded-3xl">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={url} alt="Cover preview" className="h-56 w-full object-cover" />
+          <img src={url} alt="Cover preview" className="h-72 w-full object-cover" />
           <div className="absolute right-3 top-3 flex gap-2">
             <button
               type="button"
@@ -58,10 +57,10 @@ export function CoverImagePicker({ initialUrl }: { initialUrl: string | null }) 
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={busy}
-          className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-brand-teal-200 bg-white text-sm text-brand-teal-700 transition-colors hover:bg-brand-teal-50 disabled:opacity-60"
+          className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-brand-teal-200 bg-white text-sm text-brand-teal-700 transition-colors hover:bg-brand-teal-50 disabled:opacity-60"
         >
           <ImagePlus className="h-6 w-6" />
-          {busy ? "Uploading…" : "Add a cover photo"}
+          {busy ? "Uploading…" : "Add a cover photo (shown at the top of the post and on cards)"}
         </button>
       )}
 

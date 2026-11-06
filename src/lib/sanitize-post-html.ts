@@ -4,11 +4,13 @@
 // runs both on the server (before saving / rendering) and in the editor
 // (when pasting).
 
+import { isAllowedMapUrl, isAllowedVideoUrl } from "@/lib/embeds";
+
 const VOID_TAGS = new Set(["br", "hr", "img"]);
 const TAG_ALIASES: Record<string, string> = { b: "strong", i: "em", strike: "s", del: "s" };
 const ALLOWED_TAGS = new Set([
   "p", "br", "hr", "h2", "h3", "h4", "strong", "em", "u", "s",
-  "a", "ul", "ol", "li", "blockquote", "img",
+  "a", "ul", "ol", "li", "blockquote", "img", "figure", "figcaption", "aside",
 ]);
 // h1 is the post title, so headings inside the body start at h2.
 const HEADING_ALIASES: Record<string, string> = { h1: "h2", h5: "h4", h6: "h4" };
@@ -63,6 +65,11 @@ function safeUrl(value: string | undefined, allowMailto: boolean): string | null
 export function sanitizePostHtml(input: string): string {
   const out: string[] = [];
   const open: string[] = []; // currently open allowed tags
+  // Every <div> seen, so each </div> knows what it closes:
+  // "keep" (photo gallery), "skip" (placeholder blocks whose contents are
+  // dropped) or "plain" (an ordinary div — removed, contents kept).
+  const divs: ("keep" | "skip" | "plain")[] = [];
+  let skipDivDepth = 0;
   const tokenRe =
     /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][a-zA-Z0-9]*)((?:"[^"]*"|'[^']*'|[^>"'])*)>|([^<]+)|</g;
   let skipUntil: string | null = null;
@@ -74,12 +81,12 @@ export function sanitizePostHtml(input: string): string {
     if (whole.startsWith("<!--")) continue;
 
     if (text !== undefined) {
-      if (!skipUntil) out.push(text);
+      if (!skipUntil && skipDivDepth === 0) out.push(text);
       continue;
     }
     if (rawName === undefined) {
       // A lone "<" that isn't a tag.
-      if (!skipUntil) out.push("&lt;");
+      if (!skipUntil && skipDivDepth === 0) out.push("&lt;");
       continue;
     }
 
@@ -90,6 +97,17 @@ export function sanitizePostHtml(input: string): string {
       if (closing && name === skipUntil) skipUntil = null;
       continue;
     }
+
+    // Inside a placeholder block (e.g. the editor's map preview): ignore
+    // everything until its closing </div>.
+    if (skipDivDepth > 0) {
+      if (name === "div") {
+        skipDivDepth += closing ? -1 : 1;
+        if (closing) divs.pop();
+        else divs.push("skip");
+      }
+      continue;
+    }
     if (DROP_WITH_CONTENT.has(name)) {
       if (!closing && !whole.endsWith("/>")) skipUntil = name;
       continue;
@@ -97,10 +115,46 @@ export function sanitizePostHtml(input: string): string {
 
     name = HEADING_ALIASES[name] ?? TAG_ALIASES[name] ?? name;
 
-    // The editor's "ad spot" placeholder: <div data-ad-slot></div>.
     if (name === "div") {
-      if (!closing && "data-ad-slot" in parseAttributes(rawAttrs)) {
-        out.push("<div data-ad-slot></div>");
+      if (closing) {
+        const kind = divs.pop();
+        if (kind === "keep") {
+          const index = open.lastIndexOf("div");
+          if (index !== -1) {
+            while (open.length > index) out.push(`</${open.pop()}>`);
+          }
+        }
+        continue;
+      }
+      const attrs = parseAttributes(rawAttrs);
+      const selfClosed = whole.endsWith("/>");
+      const block = (html: string) => {
+        out.push(html);
+        if (selfClosed) return;
+        divs.push("skip");
+        skipDivDepth = 1;
+      };
+      if ("data-ad-slot" in attrs) block("<div data-ad-slot></div>");
+      else if ("data-toc" in attrs) block("<div data-toc></div>");
+      else if ("data-map" in attrs) {
+        if (isAllowedMapUrl(attrs["data-map"])) {
+          const caption = (attrs["data-caption"] ?? "").slice(0, 200);
+          block(
+            `<div data-map="${escapeAttr(attrs["data-map"])}"${
+              caption ? ` data-caption="${escapeAttr(caption)}"` : ""
+            }></div>`
+          );
+        } else divs.push("plain");
+      } else if ("data-video" in attrs) {
+        if (isAllowedVideoUrl(attrs["data-video"])) {
+          block(`<div data-video="${escapeAttr(attrs["data-video"])}"></div>`);
+        } else divs.push("plain");
+      } else if ("data-gallery" in attrs) {
+        out.push(`<div data-gallery="${attrs["data-gallery"] === "3" ? "3" : "2"}">`);
+        open.push("div");
+        divs.push("keep");
+      } else {
+        divs.push("plain");
       }
       continue;
     }
@@ -145,5 +199,6 @@ export function sanitizePostHtml(input: string): string {
   }
 
   while (open.length > 0) out.push(`</${open.pop()}>`);
-  return out.join("");
+  // Drop captions nobody filled in.
+  return out.join("").replace(/<figcaption>(?:\s|<br>|&nbsp;)*<\/figcaption>/g, "");
 }

@@ -2,21 +2,27 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Pencil, ExternalLink } from "lucide-react";
 import { findCategory, findCountry } from "@/data/taxonomy";
-import { formatPostDate, getPostBySlug, isBlogEditor, youtubeEmbedUrl } from "@/lib/posts";
+import { formatPostDate, getPostBySlug, getViewerEmail, isBlogEditor, youtubeEmbedUrl } from "@/lib/posts";
 import { bodyToHtml } from "@/lib/post-body";
 import { sanitizePostHtml } from "@/lib/sanitize-post-html";
+import { renderPostHtml } from "@/lib/render-post";
+import { PostFooter } from "@/components/PostFooter";
 import { DeletePostButton } from "@/components/DeletePostButton";
 
 export const dynamic = "force-dynamic";
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [post, isEditor] = await Promise.all([getPostBySlug(slug), isBlogEditor()]);
+  const [post, isEditor, viewerEmail] = await Promise.all([
+    getPostBySlug(slug),
+    isBlogEditor(),
+    getViewerEmail(),
+  ]);
 
   if (!post || (!post.published && !isEditor)) notFound();
 
   const embedUrl = youtubeEmbedUrl(post.video_url);
-  const bodyHtml = sanitizePostHtml(bodyToHtml(post.body));
+  const bodyHtml = renderPostHtml(sanitizePostHtml(bodyToHtml(post.body)));
   const countries = post.countries.map((s) => findCountry(s)).filter((c) => c !== undefined);
   const categories = post.categories.map((s) => findCategory(s)).filter((c) => c !== undefined);
 
@@ -55,6 +61,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             </div>
           )}
         </div>
+        {post.subtitle && <p className="text-xl text-brand-muted">{post.subtitle}</p>}
         <p className="text-sm text-brand-muted">{formatPostDate(post.created_at)}</p>
         <div className="flex flex-wrap gap-2">
           {countries.map((country) => (
@@ -81,7 +88,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             </span>
           )}
         </div>
-        {post.subtitle && <p className="text-xl text-brand-muted">{post.subtitle}</p>}
       </header>
 
       {embedUrl ? (
@@ -109,6 +115,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       )}
 
       <div className="post-body" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
+
+      <PostFooter signedIn={Boolean(viewerEmail)} />
     </article>
   );
 }

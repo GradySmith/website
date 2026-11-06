@@ -62,24 +62,7 @@ export async function isBlogEditor(): Promise<boolean> {
   }
 }
 
-// Returns a YouTube embed URL for a watch/short/youtu.be link, else null.
-export function youtubeEmbedUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-  try {
-    const parsed = new URL(url);
-    let id: string | null = null;
-    if (parsed.hostname === "youtu.be") id = parsed.pathname.slice(1);
-    else if (parsed.hostname.endsWith("youtube.com")) {
-      if (parsed.pathname === "/watch") id = parsed.searchParams.get("v");
-      else if (parsed.pathname.startsWith("/shorts/") || parsed.pathname.startsWith("/embed/")) {
-        id = parsed.pathname.split("/")[2] ?? null;
-      }
-    }
-    return id ? `https://www.youtube.com/embed/${id}` : null;
-  } catch {
-    return null;
-  }
-}
+export { youtubeEmbedUrl } from "@/lib/embeds";
 
 export function slugify(value: string): string {
   return value
@@ -92,4 +75,15 @@ export function slugify(value: string): string {
 
 export function formatPostDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", { dateStyle: "medium", timeZone: "UTC" });
+}
+
+// The signed-in visitor's email, or undefined for logged-out visitors.
+export async function getViewerEmail(): Promise<string | undefined> {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getClaims();
+    return (data?.claims?.email as string | undefined) ?? undefined;
+  } catch {
+    return undefined;
+  }
 }
